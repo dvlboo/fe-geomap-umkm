@@ -47,18 +47,24 @@ export default function landingPage() {
       </section>
 
       {/* STATISTICS */}
-      <section className="max-w-7xl mx-auto px-6 py-12 grid md:grid-cols-2 lg:grid-cols-3 gap-6 text-center">
-        <div className="border rounded-2xl py-6">
-          <h3 className="text-2xl font-bold text-orange-500">200+</h3>
-          <p className="text-gray-600">Pelaku UMKM telah terpetakan</p>
+      <section className="max-w-7xl mx-auto px-4 py-16 gap-8 flex justify-center items-center">
+        <div className="flex justify-center items-center outline-1 outline-gray-500 rounded-full px-4 py-6 w-4/12">
+          <div className="outline-1 outline-[var(--yellow-umkm)] px-5 py-2.5 rounded-full">
+            <p className="text-5xl font-semibold text-[var(--yellow-umkm)]">200+</p>
+          </div>
+          <p className="text-black ml-5">Ratusan pelaku UMKM makanan telah terpetakan</p>
         </div>
-        <div className="border rounded-2xl py-6">
-          <h3 className="text-2xl font-bold text-orange-500">15+</h3>
-          <p className="text-gray-600">Jenis kuliner tradisional & modern</p>
+        <div className="flex justify-center items-center outline-1 outline-gray-500 rounded-full px-4 py-6 w-4/12">
+          <div className="outline-1 outline-[var(--yellow-umkm)] px-5 py-2.5 rounded-full">
+            <p className="text-5xl font-semibold text-[var(--yellow-umkm)]">15+</p>
+          </div>
+          <p className="text-black ml-5">Dari jajanan tradisional, minuman segar, hingga kuliner kekinian – semua ada di sini.</p>
         </div>
-        <div className="border rounded-2xl py-6">
-          <h3 className="text-2xl font-bold text-orange-500">∞</h3>
-          <p className="text-gray-600">Rasa yang tak terlupakan</p>
+        <div className="flex justify-center items-center outline-1 outline-gray-500 rounded-full px-4 py-6 w-4/12">
+          <div className="px-5 py-2.5 outline-1 outline-[var(--yellow-umkm)] rounded-full">
+            <p className="text-5xl font-semibold text-[var(--yellow-umkm)]">2</p>
+          </div>
+          <p className="text-black ml-5">Jelajahi kuliner khas dua kabupaten Madura dengan cita rasa yang unik dan otentik.</p>
         </div>
       </section>
 
