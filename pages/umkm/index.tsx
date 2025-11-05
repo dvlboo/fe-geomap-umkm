@@ -89,7 +89,7 @@ const dataUMKM = [
 ];
 
 export default function UMKMPage() {
-  const [activeFilter, setActiveFilter] = useState("Semua");
+  const [activeFilter, setActiveFilter] = useState<string>("Semua");
 
   const filterButtons = [
     { name: "Semua", value: "Semua" },
