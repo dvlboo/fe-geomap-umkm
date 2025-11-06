@@ -67,7 +67,7 @@ export default function DataUmkmPage() {
                 <td className="px-5 py-4 text-center">
                   <div className="inline-flex items-center gap-2 justify-center">
                     <Link
-                      href={`/admin/edit-umkm/${umkm.id}`}
+                      href={`/admin/umkm/edit${umkm.id}`}
                       className="text-white bg-blue-500 hover:bg-blue-600 px-3 py-1 rounded"
                       aria-label={`Edit ${umkm.name}`}
                     >
