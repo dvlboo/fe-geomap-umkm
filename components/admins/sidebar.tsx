@@ -14,7 +14,7 @@ const active = pathname === href || pathname.startsWith(href + '/');
       className={`flex items-center gap-3 px-5 py-3 rounded-xl transition 
       ${active ?"bg-black text-white":"text-gray-600 hover:bg-gray-200"}`}
     >
-      <span className={`w-5 h-5`}>{icon}</span>
+      <span>{icon}</span>
       <span className="text-sm font-medium">{label}</span>
     </Link>
     );
