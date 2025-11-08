@@ -29,11 +29,25 @@ const initialUmkmDatas = [
 
 export default function DataUmkmPage() {
   const [umkmList, setUmkmList] = useState(initialUmkmDatas);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteId, setDeleteId] = useState<number | null>(null);
 
-  const handleDelete = (id: number) => {
-    const ok = confirm('Hapus UMKM ini?');
-    if (!ok) return;
-    setUmkmList((prev) => prev.filter((u) => u.id !== id));
+  const handleDeleteClick = (id: number) => {
+    setDeleteId(id);
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (deleteId !== null) {
+      setUmkmList((prev) => prev.filter((u) => u.id !== deleteId));
+    }
+    setShowDeleteModal(false);
+    setDeleteId(null);
+  };
+
+  const handleCancelDelete = () => {
+    setShowDeleteModal(false);
+    setDeleteId(null);
   };
 
   return (
@@ -75,7 +89,7 @@ export default function DataUmkmPage() {
                     </Link>
 
                     <button
-                      onClick={() => handleDelete(umkm.id)}
+                      onClick={() => handleDeleteClick(umkm.id)}
                       className="text-white bg-red-500 hover:bg-red-600 hover:cursor-pointer px-3 py-1 rounded"
                       aria-label={`Hapus ${umkm.id}`}
                     >
@@ -88,6 +102,38 @@ export default function DataUmkmPage() {
           </tbody>
         </table>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <>
+          {/* Overlay */}
+          <div
+            className="fixed inset-0 bg-black opacity-80 z-40"
+            onClick={handleCancelDelete}
+          />
+
+          {/* Modal */}
+          <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-xl z-50 p-6 w-full max-w-sm">
+            <h3 className="text-xl font-bold mb-4 text-gray-900 text-center">
+              Apakah anda yakin ingin menghapus data ini?
+            </h3>
+            <div className="flex items-center justify-center gap-3 w-full">
+              <button
+                onClick={handleCancelDelete}
+                className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-400 font-medium transition-colors w-1/2 hover:cursor-pointer"
+              >
+                Batal
+              </button>
+              <button
+                onClick={handleConfirmDelete}
+                className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium transition-colors w-1/2 hover:cursor-pointer"
+              >
+                Hapus
+              </button>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }
