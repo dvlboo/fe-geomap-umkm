@@ -106,6 +106,68 @@ export default function RBImap({
   const [pamekasanLayers, setPamekasanLayers] = useState<GeoLayer[]>([]);
   const [sumenepLayers, setSumenepLayers] = useState<GeoLayer[]>([]);
 
+  // Calculate distance between two coordinates (in kilometers)
+  const calculateDistance = (lat1: number, lng1: number, lat2: number, lng2: number): number => {
+    const R = 6371; // Earth's radius in km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLng = (lng2 - lng1) * Math.PI / 180;
+    const a = 
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+      Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  };
+
+  // Check if a road segment is near any UMKM point
+  const isRoadNearUMKM = (coordinates: any, umkmList: UMKM[], maxDistance: number = 1): boolean => {
+    if (!coordinates || coordinates.length === 0) return false;
+
+    // Flatten coordinates if nested (MultiLineString)
+    const flatCoords = Array.isArray(coordinates[0][0]) 
+      ? coordinates.flat() 
+      : coordinates;
+
+    // Check if any point in the road is near any UMKM
+    for (const coord of flatCoords) {
+      const [lng, lat] = coord;
+      for (const umkm of umkmList) {
+        const distance = calculateDistance(lat, lng, umkm.lat, umkm.lng);
+        if (distance <= maxDistance) {
+          return true;
+        }
+      }
+    }
+    return false;
+  };
+
+  // Filter roads to only show main roads near UMKM points
+  const filterMainRoads = (roadData: any, kabupaten: string): any => {
+    if (!roadData || !roadData.features) return roadData;
+
+    const relevantUMKM = umkmData.filter(u => u.location === kabupaten);
+    
+    const filteredFeatures = roadData.features.filter((feature: any) => {
+      // Keep major roads (jalan utama) based on road type if available
+      const roadType = feature.properties?.REMARK || feature.properties?.NAMOBJ || '';
+      const isMajorRoad = roadType.toLowerCase().includes('utama') || 
+                          roadType.toLowerCase().includes('provinsi') ||
+                          roadType.toLowerCase().includes('nasional') ||
+                          roadType.toLowerCase().includes('kolektor');
+
+      // Check if road is near UMKM points
+      const coordinates = feature.geometry?.coordinates;
+      const isNearUMKM = isRoadNearUMKM(coordinates, relevantUMKM, 1.5); // 1.5 km radius
+
+      return isMajorRoad || isNearUMKM;
+    });
+
+    return {
+      ...roadData,
+      features: filteredFeatures
+    };
+  };
+
   const loadKabupatenData = async (
     kabupaten: string,
     color: string,
@@ -118,11 +180,17 @@ export default function RBImap({
       try {
         const res = await fetch(`/datas/${kabupaten}/${file}`);
         if (!res.ok) continue;
-        const data = await res.json();
+        let data = await res.json();
 
         let style = {};
-        if (file.includes('adm_desa')) style = { color, weight: 0, fillOpacity: 0.5 };
-        if (file.includes('jalan')) style = { color: roadColor ?? 'orange', weight: 1 };
+        if (file.includes('adm_desa')) {
+          style = { color, weight: 0, fillOpacity: 0.5 };
+        }
+        if (file.includes('jalan')) {
+          // Filter roads to show only main roads near UMKM
+          data = filterMainRoads(data, kabupaten);
+          style = { color: roadColor ?? 'orange', weight: 2 };
+        }
 
         results.push({ name: file, data, style });
       } catch (err) {
