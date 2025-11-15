@@ -13,7 +13,7 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [formData, setFormData] = useState({
-    email: "",
+    username: "",
     password: "",
   });
 
@@ -23,7 +23,6 @@ export default function LoginPage() {
       ...prev,
       [name]: value,
     }));
-    // Clear error when user types
     if (error) setError("");
   };
 
@@ -36,7 +35,6 @@ export default function LoginPage() {
       const result = await authService.login(formData);
 
       if (result.success) {
-        // Redirect to dashboard on successful login
         router.push("/admin/dashboard");
       } else {
         setError(result.error || "Login gagal. Silakan coba lagi.");
@@ -60,17 +58,17 @@ export default function LoginPage() {
           <p className="text-center mb-6">Silakan masuk menggunakan username dan password Anda.</p>
 
           {error && (
-            <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+            <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg text-sm">
               {error}
             </div>
           )}
 
           <div className="mb-6">
             <input 
-              type="email" 
-              name="email" 
-              placeholder="Email"
-              value={formData.email}
+              type="text" 
+              name="username" 
+              placeholder="Username"
+              value={formData.username}
               onChange={handleInputChange}
               required
               disabled={isLoading}
@@ -104,7 +102,7 @@ export default function LoginPage() {
             <Link href="/admin/forgot-password" className="text-sm text-black font-bold">Lupa Password?</Link>
           </div>
 
-          <button 
+          <button
             type="submit" 
             disabled={isLoading}
             className="hover:bg-[var(--yellow-umkm)] bg-black hover:text-black text-white font-semibold py-3 px-6 rounded-full w-full hover:cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
