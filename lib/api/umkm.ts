@@ -1,4 +1,4 @@
-import { API_BASE_URL, createHeaders, createFormDataHeaders, handleResponse } from './client';
+import { apiClient } from './client';
 
 export interface SocialMedia {
   id?: number;
@@ -74,29 +74,20 @@ export interface MessageResponse {
 export const umkmApi = {
   // Get all UMKM
   getAll: async (): Promise<UMKMListResponse> => {
-    const response = await fetch(`${API_BASE_URL}/umkm/`, {
-      method: 'GET',
-      headers: createHeaders(false),
-    });
-    return handleResponse(response);
+    const response = await apiClient.get<UMKMListResponse>('/umkm/');
+    return response.data;
   },
 
   // Get UMKM by ID
   getById: async (id: number | string): Promise<UMKMResponse> => {
-    const response = await fetch(`${API_BASE_URL}/umkm/${id}`, {
-      method: 'GET',
-      headers: createHeaders(false),
-    });
-    return handleResponse(response);
+    const response = await apiClient.get<UMKMResponse>(`/umkm/${id}`);
+    return response.data;
   },
 
   // Create new UMKM
   create: async (data: CreateUMKMData): Promise<UMKMResponse> => {
     const hasFiles = data.place_pict instanceof File || data.product_pict instanceof File;
     
-    let body: FormData | string;
-    let headers: HeadersInit;
-
     if (hasFiles) {
       const formData = new FormData();
       
@@ -110,28 +101,22 @@ export const umkmApi = {
         }
       });
       
-      body = formData;
-      headers = createFormDataHeaders(true);
+      const response = await apiClient.post<UMKMResponse>('/umkm/', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data;
     } else {
-      headers = createHeaders(true);
-      body = JSON.stringify(data);
+      const response = await apiClient.post<UMKMResponse>('/umkm/', data);
+      return response.data;
     }
-
-    const response = await fetch(`${API_BASE_URL}/umkm/`, {
-      method: 'POST',
-      headers,
-      body,
-    });
-    return handleResponse(response);
   },
 
   // Update UMKM
   update: async (id: number | string, data: UpdateUMKMData): Promise<UMKMResponse> => {
     const hasFiles = data.place_pict instanceof File || data.product_pict instanceof File;
     
-    let body: FormData | string;
-    let headers: HeadersInit;
-
     if (hasFiles) {
       const formData = new FormData();
       
@@ -145,27 +130,21 @@ export const umkmApi = {
         }
       });
       
-      body = formData;
-      headers = createFormDataHeaders(true);
+      const response = await apiClient.put<UMKMResponse>(`/umkm/${id}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data;
     } else {
-      headers = createHeaders(true);
-      body = JSON.stringify(data);
+      const response = await apiClient.put<UMKMResponse>(`/umkm/${id}`, data);
+      return response.data;
     }
-
-    const response = await fetch(`${API_BASE_URL}/umkm/${id}`, {
-      method: 'PUT',
-      headers,
-      body,
-    });
-    return handleResponse(response);
   },
 
   // Delete UMKM
   delete: async (id: number | string): Promise<MessageResponse> => {
-    const response = await fetch(`${API_BASE_URL}/umkm/${id}`, {
-      method: 'DELETE',
-      headers: createHeaders(true),
-    });
-    return handleResponse(response);
+    const response = await apiClient.delete<MessageResponse>(`/umkm/${id}`);
+    return response.data;
   },
 };

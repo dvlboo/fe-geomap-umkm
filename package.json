@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "apexcharts": "^5.3.6",
+    "axios": "^1.13.2",
     "leaflet": "^1.9.4",
     "next": "15.5.4",
     "react": "19.1.0",
