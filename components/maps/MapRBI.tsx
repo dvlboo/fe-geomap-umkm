@@ -85,9 +85,15 @@ export default function RBImap({
 }) {
   const [pamekasanLayers, setPamekasanLayers] = useState<GeoLayer[]>([]);
   const [sumenepLayers, setSumenepLayers] = useState<GeoLayer[]>([]);
+  const [routeLines, setRouteLines] = useState<GeoLayer[]>([]);
   
   // Transform UMKM data for map display
   const mapUMKMData = transformUMKMData(umkmData);
+  
+  // Filter UMKM data based on regency filter for route generation
+  const filteredUMKMData = mapUMKMData.filter(u => 
+    filter === 'Semua' || u.regency === filter
+  );
 
   // Calculate distance between two coordinates (in kilometers)
   const calculateDistance = (lat1: number, lng1: number, lat2: number, lng2: number): number => {
@@ -100,6 +106,28 @@ export default function RBImap({
       Math.sin(dLng / 2) * Math.sin(dLng / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
+  };
+
+  // Fetch route between two points using OSRM
+  const getOSRMRoute = async (start: MapUMKM, end: MapUMKM) => {
+    try {
+      const url = `https://router.project-osrm.org/route/v1/driving/${start.lng},${start.lat};${end.lng},${end.lat}?overview=full&geometries=geojson`;
+      
+      const response = await fetch(url);
+      const data = await response.json();
+      
+      if (data.code === 'Ok' && data.routes && data.routes.length > 0) {
+        return {
+          geometry: data.routes[0].geometry,
+          distance: data.routes[0].distance / 1000, // Convert to km
+          duration: data.routes[0].duration / 60, // Convert to minutes
+        };
+      }
+      return null;
+    } catch (error) {
+      console.error('OSRM routing error:', error);
+      return null;
+    }
   };
 
   // Check if point is on the line between two points (with tolerance)
@@ -143,7 +171,7 @@ export default function RBImap({
         // If at least 30% of road points are between these UMKMs, this road connects them
         const percentageBetween = pointsBetween / flatCoords.length;
         if (percentageBetween >= 0.3) {
-          console.log(`✅ Road connects ${umkm1.name} ↔ ${umkm2.name} (${(percentageBetween * 100).toFixed(1)}% points between)`);
+          // console.log(`✅ Road connects ${umkm1.name} ↔ ${umkm2.name} (${(percentageBetween * 100).toFixed(1)}% points between)`);
           return true;
         }
       }
@@ -196,46 +224,135 @@ export default function RBImap({
 
   const loadKabupatenData = async (
     kabupaten: string,
-    color: string,
-    roadColor?: string
+    color: string
   ) => {
-    const files = ['adm_desa.json', 'jalan.json'];
     const results: GeoLayer[] = [];
 
-    for (const file of files) {
-      try {
-        const res = await fetch(`/datas/${kabupaten}/${file}`);
-        if (!res.ok) continue;
-        let data = await res.json();
-
-        let style = {};
-        if (file.includes('adm_desa')) {
-          // Layer kabupaten selalu aktif
-          style = { color, weight: 0, fillOpacity: 0.5 };
-          results.push({ name: file, data, style });
-        }
-        if (file.includes('jalan')) {
-          // Filter roads to show only roads connecting between UMKMs
-          data = filterConnectingRoads(data, kabupaten);
-          style = { color: roadColor ?? 'orange', weight: 2 };
-          // Hanya push layer jalan jika ada data setelah filter
-          if (data.features && data.features.length > 0) {
-            results.push({ name: file, data, style });
-          }
-        }
-      } catch (err) {
-        console.error(`Gagal load ${file} untuk ${kabupaten}`, err);
+    try {
+      // Only load boundary layer (adm_desa)
+      const res = await fetch(`/datas/${kabupaten}/adm_desa.json`);
+      if (res.ok) {
+        const data = await res.json();
+        results.push({ 
+          name: 'adm_desa.json', 
+          data, 
+          style: { color, weight: 0, fillOpacity: 0.5 } 
+        });
       }
+    } catch (err) {
+      console.error(`Failed to load boundary for ${kabupaten}`, err);
     }
 
     return results;
   };
 
+  // Generate routes connecting all UMKMs via nearest neighbor (spanning tree approach)
+  const generateUMKMRoutes = async () => {
+    if (filteredUMKMData.length < 2) {
+      setRouteLines([]);
+      return;
+    }
+
+    console.log(`🛣️ Generating OSRM routes for ${filteredUMKMData.length} UMKMs in ${filter}...`);
+    
+    const DELAY_MS = 200; // Delay between requests to avoid rate limiting
+
+    // Helper to delay execution
+    const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+    // Clear existing routes first
+    setRouteLines([]);
+
+    // Track which UMKMs are already connected
+    const connected = new Set<number>();
+    const unconnected = new Set<number>(filteredUMKMData.map((_, idx) => idx));
+    
+    // Start with first UMKM
+    const startIdx = 0;
+    connected.add(startIdx);
+    unconnected.delete(startIdx);
+
+    // Connect each remaining UMKM to the nearest already-connected UMKM
+    while (unconnected.size > 0) {
+      let minDistance = Infinity;
+      let bestPair: { fromIdx: number; toIdx: number } | null = null;
+
+      // Find the closest unconnected UMKM to any connected UMKM
+      for (const connectedIdx of connected) {
+        for (const unconnectedIdx of unconnected) {
+          const distance = calculateDistance(
+            filteredUMKMData[connectedIdx].lat,
+            filteredUMKMData[connectedIdx].lng,
+            filteredUMKMData[unconnectedIdx].lat,
+            filteredUMKMData[unconnectedIdx].lng
+          );
+
+          if (distance < minDistance) {
+            minDistance = distance;
+            bestPair = { fromIdx: connectedIdx, toIdx: unconnectedIdx };
+          }
+        }
+      }
+
+      if (!bestPair) break;
+
+      const umkm1 = filteredUMKMData[bestPair.fromIdx];
+      const umkm2 = filteredUMKMData[bestPair.toIdx];
+
+      // Add delay to avoid rate limiting
+      await delay(DELAY_MS);
+
+      const route = await getOSRMRoute(umkm1, umkm2);
+      
+      if (route) {
+        console.log(`✅ Route: ${umkm1.name} → ${umkm2.name}`);
+        
+        // Langsung tampilkan route begitu didapat
+        setRouteLines(prev => [...prev, {
+          name: `route-${umkm1.id}-${umkm2.id}`,
+          data: {
+            type: 'FeatureCollection',
+            features: [{
+              type: 'Feature',
+              geometry: route.geometry,
+              properties: {
+                from: umkm1.name,
+                to: umkm2.name,
+              }
+            }]
+          },
+          style: {
+            color: '#0000ab',
+            weight: 3,
+            opacity: 0.7,
+          }
+        }]);
+      }
+
+      // Mark this UMKM as connected
+      connected.add(bestPair.toIdx);
+      unconnected.delete(bestPair.toIdx);
+    }
+
+    console.log(`✅ Route generation complete: ${connected.size} UMKMs connected`);
+  };
+
   useEffect(() => {
-    // Load kabupaten data (always show layers, but roads depend on UMKM)
-    loadKabupatenData('pamekasan', '#22c55e', '#0000ab').then(setPamekasanLayers);
-    loadKabupatenData('sumenep', '#2fdb04', '#0000ab').then(setSumenepLayers);
-  }, [umkmData.length, filter, searchQuery]);
+    // Load kabupaten data (always show boundary layers)
+    loadKabupatenData('pamekasan', '#22c55e').then(setPamekasanLayers);
+    loadKabupatenData('sumenep', '#2fdb04').then(setSumenepLayers);
+  }, []);
+
+  useEffect(() => {
+    // Generate OSRM routes when UMKM data or filter changes
+    if (filteredUMKMData.length >= 2) {
+      console.log('🔄 Triggering route generation...');
+      generateUMKMRoutes();
+    } else {
+      setRouteLines([]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filteredUMKMData.length, filter]); // Regenerate routes when filter changes
 
   return (
     <MapContainer
@@ -257,6 +374,11 @@ export default function RBImap({
         sumenepLayers.map((layer, i) => (
           <GeoJSON key={`sumenep-${i}`} data={layer.data} style={layer.style} />
         ))}
+
+      {/* OSRM Routes between UMKMs */}
+      {routeLines.map((route, i) => (
+        <GeoJSON key={`route-${i}`} data={route.data} style={route.style} />
+      ))}
 
       {mapUMKMData
         .filter((u) => {
