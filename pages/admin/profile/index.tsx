@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
+import { UserProfile } from "@/lib/auth/auth.type";
 import Protected from "@/components/auth/Protected";
-import { authService } from "@/lib/services/authService";
-import type { UserProfile } from "@/lib/api/auth";
+import { authService } from "@/lib/auth/auth.service";
 
 interface ProfileField {
   label: string;

@@ -1,11 +1,11 @@
-import Image from "next/image";
-import {heroHome, foodOneImage, foodTrenImage, newsImage} from "@/assets";
 import Link from "next/link";
-import { FaArrowRight } from "react-icons/fa";
-import FoodCardUMKM from "@/components/cards/CardUMKM";
+import Image from "next/image";
 import { useState, useEffect } from "react";
-import { umkmService } from "@/lib/umkm/umkm.service";
 import { UMKM } from "@/lib/umkm/umkm.type";
+import { FaArrowRight } from "react-icons/fa";
+import { umkmService } from "@/lib/umkm/umkm.service";
+import FoodCardUMKM from "@/components/cards/CardUMKM";
+import {heroHome, foodOneImage, foodTrenImage, newsImage} from "@/assets";
 
 export default function LandingPage() {
   const [umkmData, setUmkmData] = useState<UMKM[]>([]);

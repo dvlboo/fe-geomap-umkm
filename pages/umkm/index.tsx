@@ -1,9 +1,9 @@
-import { useState, useEffect } from "react";
 import { foodOneImage } from "@/assets";
-import FoodCardUMKM from "@/components/cards/CardUMKM";
 import { CiSearch } from "react-icons/ci";
-import { umkmService } from "@/lib/umkm/umkm.service";
+import { useState, useEffect } from "react";
 import { UMKM } from "@/lib/umkm/umkm.type";
+import FoodCardUMKM from "@/components/cards/CardUMKM";
+import { umkmService } from "@/lib/umkm/umkm.service";
 
 export default function UMKMPage() {
   const [activeFilter, setActiveFilter] = useState<string>("Semua");

@@ -1,11 +1,11 @@
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
+import { UMKM } from "@/lib/umkm/umkm.type";
 import { IoLocation } from "react-icons/io5";
 import { BsTelephone } from "react-icons/bs";
 import { FaArrowRight } from "react-icons/fa";
 import { umkmService } from "@/lib/umkm/umkm.service";
-import { UMKM } from "@/lib/umkm/umkm.type";
 
 export default function UmkmDetailPage() {
   const router = useRouter();
