@@ -1,6 +1,6 @@
-import { useEffect, useState, ReactNode } from 'react';
 import { useRouter } from 'next/router';
-import { authService } from '@/lib/services/authService';
+import { useEffect, useState, ReactNode } from 'react';
+import { authService } from '@/lib/auth/auth.service';
 
 interface ProtectedProps {
   children: ReactNode;
