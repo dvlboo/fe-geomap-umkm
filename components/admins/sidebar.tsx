@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { FiShoppingBag } from "react-icons/fi";
 import { GoPerson } from "react-icons/go";
+import { FiShoppingBag } from "react-icons/fi";
+import { authService } from "@/lib/auth/auth.service";
 import { MdLogout, MdOutlineDashboard } from "react-icons/md";
-import { authService } from "@/lib/services/authService";
 
 const NavItem = ({ href, label, icon }: { href: string; label: string; icon: any }) => {
 const { pathname } = useRouter();

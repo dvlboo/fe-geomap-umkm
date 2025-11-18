@@ -2,8 +2,8 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { FaChevronDown, FaChevronUp, FaPlus, FaTrash } from "react-icons/fa";
-import { umkmService } from "@/lib/services/umkmService";
-import { SocialMedia } from "@/lib/api/umkm";
+import { umkmService } from "@/lib/umkm/umkm.service";
+import { SocialMedia } from "@/lib/umkm/umkm.type";
 
 interface FormUMKMProps {
   umkmId?: string | number;

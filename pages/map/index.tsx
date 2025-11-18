@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { CiSearch } from "react-icons/ci";
 import dynamic from "next/dynamic";
 import PopSlideDetail from "@/components/maps/PopSlideDetail";
-import { UMKM } from "@/lib/api/umkm";
-import { umkmService } from "@/lib/services/umkmService";
+import { UMKM } from "@/lib/umkm/umkm.type";
+import { umkmService } from "@/lib/umkm/umkm.service";
 
 const MapRBI = dynamic(() => import('@/components/maps/MapRBI'), { ssr: false });
 

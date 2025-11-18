@@ -4,8 +4,8 @@ import { useState, useEffect } from "react";
 import { IoLocation } from "react-icons/io5";
 import { BsTelephone } from "react-icons/bs";
 import { FaArrowRight } from "react-icons/fa";
-import { umkmService } from "@/lib/services/umkmService";
-import { UMKM } from "@/lib/api/umkm";
+import { umkmService } from "@/lib/umkm/umkm.service";
+import { UMKM } from "@/lib/umkm/umkm.type";
 
 export default function UmkmDetailPage() {
   const router = useRouter();

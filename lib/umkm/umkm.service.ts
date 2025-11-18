@@ -1,4 +1,5 @@
-import { umkmApi, type CreateUMKMData, type UpdateUMKMData, type UMKM } from '../api/umkm';
+import { umkmApi } from "./umkm.api";
+import { CreateUMKMData, UMKM, UpdateUMKMData } from "./umkm.type";
 
 export const umkmService = {
   

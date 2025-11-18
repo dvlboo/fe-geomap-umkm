@@ -1,4 +1,4 @@
-import { MapUMKM, RouteData, OSRMRouteResponse } from '@/lib/types/map';
+import { MapUMKM, RouteData, OSRMRouteResponse } from '@/lib/map/map.type';
 
 export class RouteService {
   private static readonly OSRM_BASE_URL = 'https://router.project-osrm.org/route/v1/driving';

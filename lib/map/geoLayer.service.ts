@@ -1,4 +1,4 @@
-import { GeoLayer } from '@/lib/types/map';
+import { GeoLayer } from '@/lib/map/map.type';
 
 export class GeoLayerService {
   private static readonly DATA_PATH = '/datas';

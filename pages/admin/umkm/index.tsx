@@ -4,8 +4,8 @@ import { FaRegEdit } from "react-icons/fa";
 import { FaPlus } from "react-icons/fa6";
 import { MdDeleteOutline } from "react-icons/md";
 import Protected from "@/components/auth/Protected";
-import { umkmService } from "@/lib/services/umkmService";
-import type { UMKM } from "@/lib/api/umkm";
+import { umkmService } from "@/lib/umkm/umkm.service";
+import type { UMKM } from "@/lib/umkm/umkm.type";
 
 export default function DataUmkmPage() {
   const [umkmList, setUmkmList] = useState<UMKM[]>([]);

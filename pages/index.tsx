@@ -4,8 +4,8 @@ import Link from "next/link";
 import { FaArrowRight } from "react-icons/fa";
 import FoodCardUMKM from "@/components/cards/CardUMKM";
 import { useState, useEffect } from "react";
-import { umkmService } from "@/lib/services/umkmService";
-import { UMKM } from "@/lib/api/umkm";
+import { umkmService } from "@/lib/umkm/umkm.service";
+import { UMKM } from "@/lib/umkm/umkm.type";
 
 export default function LandingPage() {
   const [umkmData, setUmkmData] = useState<UMKM[]>([]);

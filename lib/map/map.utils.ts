@@ -1,7 +1,7 @@
 import L from 'leaflet';
-import { UMKM } from '@/lib/api/umkm';
-import { MapUMKM } from '@/lib/types/map';
 import { foodTrenImage } from '@/assets';
+import { UMKM } from '@/lib/umkm/umkm.type';
+import { MapUMKM } from '@/lib/map/map.type';
 
 export class MapUtils {
   static transformUMKMData(umkmList: UMKM[]): MapUMKM[] {

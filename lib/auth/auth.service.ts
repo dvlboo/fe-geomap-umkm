@@ -1,5 +1,6 @@
-import { authApi, type LoginData, type ChangePasswordData, type ForgotPasswordData, type ResetPasswordData } from '../api/auth';
-import { saveAuthToken, removeAuthToken, getAuthToken } from '../api/client';
+import { authApi } from "./auth.api";
+import { getAuthToken, removeAuthToken, saveAuthToken } from "../api";
+import { ChangePasswordData, ForgotPasswordData, LoginData, ResetPasswordData } from "./auth.type";
 
 export const authService = {
 

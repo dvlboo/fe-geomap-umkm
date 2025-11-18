@@ -2,10 +2,10 @@
 
 import 'leaflet/dist/leaflet.css';
 import { useEffect, useState } from 'react';
-import { MapUtils } from '@/lib/utils/mapUtils';
-import { routeService } from '@/lib/services/routeService';
-import { GeoLayer, MapProps, RouteData } from '@/lib/types/map';
-import { geoLayerService } from '@/lib/services/geoLayerService';
+import { MapUtils } from '@/lib/map/map.utils';
+import { routeService } from '@/lib/map/route.service';
+import { GeoLayer, MapProps, RouteData } from '@/lib/map/map.type';
+import { geoLayerService } from '@/lib/map/geoLayer.service';
 import { MapContainer, TileLayer, GeoJSON, Marker } from 'react-leaflet';
 
 export default function RBImap({ 
